@@ -1,5 +1,5 @@
 blueprint:
-  name: Motion Aware Lights Toggling
+  name: Motion Based Lights Toggling
   description: >
     Turn a light on and off based on detected motion but only if certain criteria a matched provided by a Illuminance-Sensor or a Binary-Sensor.  
     Also allows to disable motion aware lights. This might be useful for example if a person is in the bed or a movie is playing.
