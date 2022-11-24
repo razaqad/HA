@@ -4,7 +4,7 @@ blueprint:
     Turn Exhaust Fan on and off based on Lights in Toilet.
     
   domain: automation
-  source_url: https://gist.github.com/razaqad/a6378a44cb9d995d4ec2631e12800ca1
+  source_url: https://github.com/razaqad/HA/blob/main/auto_Exhaust.yaml
   input:
     lights:
       name: Light to monitor
