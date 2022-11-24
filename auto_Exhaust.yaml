@@ -1,38 +1,182 @@
 blueprint:
-  name: Auto Exhaust
-  description: >
-    Turn Exhaust Fan on and off based on Lights in Toilet.
-    
+  name: Auto Exhaust Based on Lights
+  description:
+    "Turn a light on and off based on detected motion but only if certain
+    criteria a matched provided by a Illuminance-Sensor or a Guest Mode input_boolean.   Also
+    allows to disable motion aware lights. This might be useful for example if a person
+    is in the bed or a movie is playing.
+
+    "
   domain: automation
-  source_url: https://github.com/razaqad/HA/blob/main/auto_Exhaust.yaml
+  source_url: https://gist.github.com/razaqad/a6378a44cb9d995d4ec2631e12800ca1
   input:
     exhaust_fan:
-      name: Target Exhaust Fan
-      description: Exhaust Fan
+      name: Exhaust Fan
+      description: Exhaust fan to sync with lights
       selector:
         entity:
           domain: switch
-    wait_time:
+          multiple: false
+
+    exhaust_fan_timer:
+      name: Exhaust Fan Timer
+      description: Exhaust fan Timer
+      selector:
+        entity:
+          domain: timer
+          multiple: false
+
+    monitor_lights:
+      name: Lights to monitor
+      description: This sensor will be synchronized with the light.
+      selector:
+        entity:
+          domain: light
+          multiple: true
+          
+    no_motion_wait:
       name: Wait time
       description: Time to wait until the light should be turned off.
       default: 120
       selector:
         number:
-          min: 0
-          max: 3600
+          min: 0.0
+          max: 3600.0
           unit_of_measurement: seconds
+          mode: slider
+          step: 1.0
+
     guest_mode_entity:
       name: Guest Mode (Optional)
-      description: "Binary Sensor that decides if lights shall Auto Turn Off. Guest Mode is on."
+      description:
+        Binary Sensor that decides if lights shall Auto Turn Off. Guest
+        Mode is on.
       default:
       selector:
         entity:
           domain: input_boolean
-    target_light:
-      name: Light
-      description: "The lights to keep in sync."
-      selector:
-        target:
-          entity:
-            domain: light
+          multiple: false
 
+
+mode: restart
+max_exceeded: silent
+
+trigger:
+  - platform: state
+    entity_id: !input 'monitor_lights'
+    id: light toggled
+  - platform: state
+    entity_id: !input 'exhaust_fan'
+    id: exhaust_off
+  - platform: state
+    entity_id: !input 'exhaust_fan_timer'
+    to: idle
+    id: Timer Off
+
+variables:
+
+  guest_mode_entity: !input guest_mode_entity
+
+
+
+action:
+  - if:
+      - condition: trigger
+        id: exhaust_off
+    then:
+      - service: timer.finish
+        data: {}
+        target:
+          entity_id: !input 'exhaust_fan_timer'
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: exhaust_off
+        sequence:
+          - service: timer.finish
+            data: {}
+            target:
+              entity_id: !input 'exhaust_fan_timer'
+      - conditions:
+          - condition: and
+            conditions:
+              - condition: trigger
+                id: light toggled
+              - condition: device
+                type: is_off
+                device_id: 083f8b10ee308d93dfe414b5afdd64ce
+                entity_id: light.bathroom_1
+                domain: light
+              - condition: device
+                type: is_off
+                device_id: 083f8b10ee308d93dfe414b5afdd64ce
+                entity_id: light.bathroom_2
+                domain: light
+              - condition: device
+                type: is_off
+                device_id: 083f8b10ee308d93dfe414b5afdd64ce
+                entity_id: light.bathroom_3
+                domain: light
+                
+        sequence:
+          - service: timer.start
+            data:
+              duration: "00:02:00"
+            target:
+              entity_id: timer.exhaust_timer
+      - conditions:
+          - condition: and
+            conditions:
+              - condition: trigger
+                id: light toggled
+              - condition: or
+                conditions:
+                  - condition: device
+                    type: is_on
+                    device_id: 083f8b10ee308d93dfe414b5afdd64ce
+                    entity_id: light.bathroom_1
+                    domain: light
+                  - condition: device
+                    type: is_on
+                    device_id: 083f8b10ee308d93dfe414b5afdd64ce
+                    entity_id: light.bathroom_2
+                    domain: light
+                  - condition: device
+                    type: is_on
+                    device_id: 083f8b10ee308d93dfe414b5afdd64ce
+                    entity_id: light.bathroom_3
+                    domain: light
+        sequence:
+          - service: timer.cancel
+            data: {}
+            target:
+              entity_id: timer.exhaust_timer
+          - type: turn_on
+            device_id: 083f8b10ee308d93dfe414b5afdd64ce
+            entity_id: switch.exhaust_fan
+            domain: switch
+      - conditions:
+          - condition: and
+            conditions:
+              - condition: trigger
+                id: Timer Off
+              - condition: device
+                type: is_off
+                device_id: 083f8b10ee308d93dfe414b5afdd64ce
+                entity_id: light.bathroom_1
+                domain: light
+              - condition: device
+                type: is_off
+                device_id: 083f8b10ee308d93dfe414b5afdd64ce
+                entity_id: light.bathroom_2
+                domain: light
+              - condition: device
+                type: is_off
+                device_id: 083f8b10ee308d93dfe414b5afdd64ce
+                entity_id: light.bathroom_3
+                domain: light
+        sequence:
+          - type: turn_off
+            device_id: 083f8b10ee308d93dfe414b5afdd64ce
+            entity_id: switch.exhaust_fan
+            domain: switch
