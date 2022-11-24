@@ -18,7 +18,7 @@ blueprint:
       selector:
         entities:
           domain: fans
-    no_motion_wait:
+    wait_time:
       name: Wait time
       description: Time to wait until the light should be turned off.
       default: 120
@@ -27,30 +27,6 @@ blueprint:
           min: 0
           max: 3600
           unit_of_measurement: seconds
-    illuminance_sensor:
-      name: Illuminance Sensor (Optional)
-      description: "Sensor that decides if lights should be turned on based on the illuminance."
-      default:
-      selector:
-        entit:
-          domain: sensor
-          device_class: illuminance
-    illuminance_threshold:
-      name: Illumincance Threshold (Optional)
-      description: "Defines the illumincance threshold below which the lights should turn on."
-      default: 300
-      selector:
-        number:
-          min: 0
-          max: 100000
-          unit_of_measurement: lux
-    binary_sensor_entity:
-      name: Binary Sensor (Optional)
-      description: "Binary Sensor that decides if lights should be turned on - state on is turn on lights."
-      default:
-      selector:
-        entity:
-          domain: binary_sensor
     guest_mode_entity:
       name: Guest Mode (Optional)
       description: "Binary Sensor that decides if lights shall Auto Turn Off. Guest Mode is on."
@@ -66,5 +42,5 @@ blueprint:
           entity:
             domain: light
 
-mode: restart
-max_exceeded: silent
+# mode: restart
+# max_exceeded: silent
