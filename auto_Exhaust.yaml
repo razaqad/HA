@@ -12,7 +12,12 @@ blueprint:
       selector:
         entities:
           domain: lights
-          
+    exhaust_fan:
+      name: Target Exhaust Fan
+      description: Exhaust Fan
+      selector:
+        entities:
+          domain: fans
     no_motion_wait:
       name: Wait time
       description: Time to wait until the light should be turned off.
