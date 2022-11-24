@@ -18,7 +18,7 @@ blueprint:
       description: Exhaust Fan
       selector:
         entities:
-          domain: fan
+          domain: switch
     wait_time:
       name: Wait time
       description: Time to wait until the light should be turned off.
