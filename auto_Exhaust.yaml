@@ -17,7 +17,7 @@ blueprint:
       name: Target Exhaust Fan
       description: Exhaust Fan
       selector:
-        entities:
+        entity:
           domain: switch
     wait_time:
       name: Wait time
