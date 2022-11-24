@@ -10,14 +10,15 @@ blueprint:
       name: Light to monitor
       description: Lights that are linked with Exhaust Fan
       selector:
-        entities:
-          domain: lights
+        entity:
+          domain: light
+          multiple: true
     exhaust_fan:
       name: Target Exhaust Fan
       description: Exhaust Fan
       selector:
         entities:
-          domain: fans
+          domain: fan
     wait_time:
       name: Wait time
       description: Time to wait until the light should be turned off.
