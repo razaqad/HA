@@ -1,10 +1,10 @@
 blueprint:
   name: Motion Based Lights Toggling
   description: >
-    Turn a light on and off based on detected motion but only if certain criteria a matched provided by a Illuminance-Sensor or a Binary-Sensor.  
+    Turn a light on and off based on detected motion but only if certain criteria a matched provided by a Illuminance-Sensor or a Guest Mode input_boolean.  
     Also allows to disable motion aware lights. This might be useful for example if a person is in the bed or a movie is playing.
   domain: automation
-  source_url: https://gist.github.com/pavax/ce9559c428b9a3c369ce79ef215ef1e2
+  source_url: https://gist.github.com/razaqad/a6378a44cb9d995d4ec2631e12800ca1
   input:
     motion_sensor:
       name: Motion Sensor
@@ -46,13 +46,13 @@ blueprint:
       selector:
         entity:
           domain: binary_sensor
-    disabled_entity_id:
-      name: Disabled Mode (Optional)
-      description: "Binary Sensor that decides if lights shall not be interacted with - state on is do not turn on lights."
+    guest_mode_entity:
+      name: Guest Mode (Optional)
+      description: "Binary Sensor that decides if lights shall Auto Turn Off. Guest Mode is on."
       default:
       selector:
         entity:
-          domain: binary_sensor
+          domain: input_boolean
     target_light:
       name: Light
       description: "The lights to keep in sync."
@@ -73,10 +73,11 @@ variables:
   illuminance_sensor: !input illuminance_sensor
   illuminance_threshold: !input illuminance_threshold
   binary_sensor_entity: !input binary_sensor_entity
-  disabled_entity_id: !input disabled_entity_id
+  guest_mode_entity: !input guest_mode_entity
+  
 
 condition:
-  - "{{ disabled_entity_id == None or is_state(disabled_entity_id, 'off') }}"
+  
   - "{{ trigger.to_state.state == 'on' }}"
   - condition: or
     conditions:
@@ -99,8 +100,9 @@ action:
   - choose:
       - conditions:
           - condition: state
-            entity_id: input_boolean.mode_guest_mode
+            entity_id: !input guest_mode_entity
             state: "off"
         sequence:
-		  - service: light.turn_off
-			target: !input target_light
+        - service: light.turn_off
+          target: !input target_light
+
