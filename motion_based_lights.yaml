@@ -16,7 +16,7 @@ blueprint:
     no_motion_wait:
       name: Wait time
       description: Time to wait until the light should be turned off.
-      default: 120
+      default: 150
       selector:
         number:
           min: 0
@@ -33,22 +33,15 @@ blueprint:
     illuminance_threshold:
       name: Illumincance Threshold (Optional)
       description: "Defines the illumincance threshold below which the lights should turn on."
-      default: 300
+      default: 10
       selector:
         number:
           min: 0
-          max: 100000
+          max: 10000
           unit_of_measurement: lux
-    binary_sensor_entity:
-      name: Binary Sensor (Optional)
-      description: "Binary Sensor that decides if lights should be turned on - state on is turn on lights."
-      default:
-      selector:
-        entity:
-          domain: binary_sensor
     guest_mode_entity:
       name: Guest Mode (Optional)
-      description: "Binary Sensor that decides if lights shall Auto Turn Off. Guest Mode is on."
+      description: "Binary Sensor that decides if lights shall Auto Turn Off."
       default:
       selector:
         entity:
@@ -72,7 +65,6 @@ trigger:
 variables:
   illuminance_sensor: !input illuminance_sensor
   illuminance_threshold: !input illuminance_threshold
-  binary_sensor_entity: !input binary_sensor_entity
   guest_mode_entity: !input guest_mode_entity
   
 
@@ -81,9 +73,9 @@ condition:
   - "{{ trigger.to_state.state == 'on' }}"
   - condition: or
     conditions:
-      - "{{ binary_sensor_entity != None and is_state(binary_sensor_entity, 'on' ) }}"
+
       - "{{ illuminance_sensor != None and states(illuminance_sensor)|int  <  illuminance_threshold|int }}"
-      - "{{ illuminance_sensor == None and binary_sensor_entity == None }}"
+      - "{{ illuminance_sensor == None }}"
 
 action:
   - service: light.turn_on
